@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block head %}
+	<title>Manage</title>
+{% endblock %}
+
+{% block body %}
+
+	<div class="container" style="margin-top: 20px;">
+
+	<form method="POST">
+	{% csrf_token %}
+	{{form.as_p}}
+	<input type="submit" value="Create EC Relation" style="margin-bottom: 50px;">
+	</form>
+
+	<table class="table">
+		<tr>
+			<th>Experiment/Citation Relation</th>
+		</tr>
+	{% for attribute in ec_relation %}
+		<tr>
+			<td class="table-success">{{attribute.aeid}}</td>
+			<td class="table-success">{{attribute.aeid.assay_source_long_name}}</td>
+			<td class="table-warning">{{attribute.citation_id}}</td>
+			<td class="table-warning">{{attribute.citation_id.citation}}</td>
+		</tr>
+	{% endfor %}
+	</table>
+	</div>
+
+	<div class="container" style="margin-top: 20px;">
+	<table class="table">
+		<tr>
+			<th>Experiment/Target Relation</th>
+		</tr>
+	{% for attribute in et_relation %}
+		<tr>
+			<td class="table-success">{{attribute.aeid}}</td>
+			<td class="table-success">{{attribute.aeid.assay_source_long_name}}</td>
+			<td class="table-warning">{{attribute.target_id}}</td>
+			<td class="table-warning">{{attribute.target_id.technological_target_official_full_name}}</td>
+		</tr>
+	{% endfor %}
+	</table>
+	</div>
+
+{% endblock %}
