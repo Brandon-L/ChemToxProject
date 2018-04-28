@@ -1,3 +1,6 @@
+#ignore migration files for backend
+**/migrations
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
