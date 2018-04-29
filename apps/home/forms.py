@@ -1,10 +1,13 @@
 from django import forms
-from home.models import experiment_citation_relation
+from home.models import experiment
 
-class ec_relation_form(forms.ModelForm):
+class experiment_form(forms.ModelForm):
 	class Meta:
-		model = experiment_citation_relation
+		model = experiment
 		fields = [
-			"aeid",
-			"citation_id"
+			"assay_source_name",
+			"assay_source_long_name",
+			"assay_name",
+			"organism",
+			"tissue"
 		]

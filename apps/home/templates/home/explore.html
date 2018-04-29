@@ -5,39 +5,220 @@
 {% endblock %}
 
 {% block body %}
-	<div class="container" style="margin-top: 20px;">
 
-		<form method="GET" action=" ">
+	<div class="container" style="margin-top: 20px; margin-bottom: 20px;">
+
+		<form method="GET" action=" " style="display: inline-block;">
 			<input type="text" placeholder="Search Term" name="q" value="{{ request.GET.q }}">
 			<input type="submit" value="Submit">
 		</form>
-		
-		<div class="table-responsive">
-		<table class="table" style="margin-top: 20px;">
-			<tr>
-				<th class="table-success">Experiment</th>
-				<th class="table-success">Citation</th>
-			</tr>
-		{% for attributes in ec_relation %}
-			<tr>
-				<td>{{attributes.aeid.assay_source_long_name}}</td>
-				<td>{{attributes.citation_id.citation}}</td>
-			</tr>
-		{% endfor %}
-		</table>
 
-		<table class="table" style="margin-top: 20px;">
-			<tr>
-				<th class="table-success">Experiment</th>
-				<th class="table-success">Target</th>
-			</tr>
-		{% for attributes in et_relation %}
-			<tr>
-				<td>{{attributes.aeid.assay_source_long_name}}</td>
-				<td>{{attributes.target_id.technological_target_official_full_name}}</td>
-			</tr>
-		{% endfor %}
-		</table>
+		<!-- BUTTONS TO CHOOSE WHICH TABLES TO VIEW -->
+		<form method="post" action="" style="display: inline-block; margin-left: 50px;">
+			{% csrf_token %}
+			<input type="submit" value="All" name="all" >
+		</form>
+		<form method="post" action="" style="display: inline-block;">
+			{% csrf_token %}
+			<input type="submit" value="Experiment" name="tableview" >
+		</form>
+		<form method="post" action="" style="display: inline-block;">
+			{% csrf_token %}
+			<input type="submit" value="Target" name="tableview" >
+		</form>
+		<form method="post" action="" style="display: inline-block;">
+			{% csrf_token %}
+			<input type="submit" value="Citation" name="tableview" >
+		</form>
+		<form method="post" action="" style="display: inline-block;">
+			{% csrf_token %}
+			<input type="submit" value="Chemical" name="tableview" >
+		</form>
+
+		<div class="table-responsive">
+
+			<!-- TABLE FOR EXPERIMENT SEARCH -->
+			{% if tableview == "Experiment" %}
+			<table class="table" id="experiment" style="margin-top: 20px; border: 1px solid gray;">
+				<tr><th colspan="6" class="table-warning" style="text-align: center;">EXPERIMENT TABLE</th></tr>
+				<tr>
+					<th class="table-success">Aeid</th>
+					<th class="table-success">Source Name</th>
+					<th class="table-success">Source Long Name</th>
+					<th class="table-success">Experiment Name</th>
+					<th class="table-success">Organism</th>
+					<th class="table-success">Tissue</th>
+				</tr>
+
+			{% for attributes in experiment_results %}
+				<tr>
+					<td>{{attributes.aeid}}</td>
+					<td>{{attributes.assay_source_name}}</td>
+					<td>{{attributes.assay_source_long_name}}</td>
+					<td>{{attributes.assay_name}}</td>
+					<td>{{attributes.organism}}</td>
+					<td>{{attributes.tissue}}</td>
+				</tr>
+			{% endfor %}
+			</table>
+
+			<div class="pagination" style="justify-content: center;">
+			    <span class="step-links">
+			    	{% if experiment_results.has_previous %}
+			            <a href="?page=1&q={{request.GET.q}}"><button class="btn btn-secondary">&laquo; first</button></a>
+			            <a href="?page={{ experiment_results.previous_page_number}}&q={{request.GET.q}}"><button class="btn btn-secondary">previous</button></a>
+			        {% else %}
+			        	<button class="btn btn-secondary disabled">&laquo; first</button>
+			        	<button class="btn btn-secondary disabled">previous</button>
+			        {% endif %}
+
+			        <span class="current">
+			            Page {{ experiment_results.number }} of {{ experiment_results.paginator.num_pages }}.
+			        </span>
+
+			        {% if experiment_results.has_next %}
+			            <a href="?page={{ experiment_results.next_page_number }}&q={{request.GET.q}}"><button class="btn btn-secondary">next</button></a>
+			            <a href="?page={{ experiment_results.paginator.num_pages }}&q={{request.GET.q}}"><button class="btn btn-secondary">last &raquo;</button></a>
+			        {% else %}
+			        	<button class="btn btn-secondary disabled">next</button>
+			        	<button class="btn btn-secondary disabled">last &raquo;</button>
+			        {% endif %}
+			    </span>
+			</div>
+			{% endif %}
+
+			<!-- TABLE FOR TARGET SEARCH -->
+			{% if tableview == "Target" %}
+			<table class="table" id="target" style="margin-top: 20px; border: 1px solid gray;">
+				<tr><th colspan="8" class="table-warning" style="text-align: center;">TARGET TABLE</th></tr>
+				<tr>
+					<th class="table-success">Intended Official Full Name</th>
+					<th class="table-success">Intended Gene Name</th>
+					<th class="table-success">Intended Official Symbol</th>
+					<th class="table-success">Intended Gene Symbol</th>
+					<th class="table-success">Technological Official Full Name</th>
+					<th class="table-success">Technological Gene Name</th>
+					<th class="table-success">Technological Offical Symbol</th>
+					<th class="table-success">Technological Gene Symbol</th>
+				</tr>
+
+			{% for attributes in target_results %}
+				<tr>
+					<td>{{attributes.intended_target_official_full_name}}</td>
+					<td>{{attributes.intended_target_gene_name}}</td>
+					<td>{{attributes.intended_target_official_symbol}}</td>
+					<td>{{attributes.intended_target_gene_symbol}}</td>
+					<td>{{attributes.technological_target_official_full_name}}</td>
+					<td>{{attributes.technological_target_gene_name}}</td>
+					<td>{{attributes.technological_target_official_symbol}}</td>
+					<td>{{attributes.technological_target_gene_symbol}}</td>
+				</tr>
+			{% endfor %}
+			</table>
+
+			<div class="pagination" style="justify-content: center;">
+			    <span class="step-links">
+			        {% if target_results.has_previous %}
+			            <a href="?page=1&q={{request.GET.q}}"><button>&laquo; first</button></a>
+			            <a href="?page={{ target_results.previous_page_number}}&q={{request.GET.q}}"><button>previous</button></a>
+			        {% endif %}
+
+			        <span class="current">
+			            Page {{ target_results.number }} of {{ target_results.paginator.num_pages }}.
+			        </span>
+
+			        {% if target_results.has_next %}
+			            <a href="?page={{ target_results.next_page_number }}&q={{request.GET.q}}"><button>next</button></a>
+			            <a href="?page={{ target_results.paginator.num_pages }}&q={{request.GET.q}}"><button>last &raquo;</button></a>
+			        {% endif %}
+			    </span>
+			</div>
+			{% endif %}
+
+			<!-- TABLE FOR CITATION SEARCH -->
+			{% if tableview == "Citation" %}
+			<table class="table" id="citation" style="margin-top: 20px; border: 1px solid gray;">
+				<tr><th colspan="4" class="table-warning" style="text-align: center;">CITATION TABLE</th></tr>
+				<tr>
+					<th class="table-success">Pmid</th>
+					<th class="table-success">Doi</th>
+					<th class="table-success">Title</th>
+					<th class="table-success">Author</th>
+				</tr>
+
+			{% for attributes in citation_results %}
+				<tr>
+					<td>{{attributes.pmid}}</td>
+					<td>{{attributes.doi}}</td>
+					<td>{{attributes.title}}</td>
+					<td>{{attributes.author}}</td>
+				</tr>
+			{% endfor %}
+			</table>
+
+			<div class="pagination" style="justify-content: center;">
+			    <span class="step-links">
+			    	{% if citation_results.has_previous %}
+			            <a href="?page=1&q={{request.GET.q}}"><button>&laquo; first</button></a>
+			            <a href="?page={{ citation_results.previous_page_number}}&q={{request.GET.q}}"><button>previous</button></a>
+			        {% endif %}
+
+			        <span class="current">
+			            Page {{ citation_results.number }} of {{ citation_results.paginator.num_pages }}.
+			        </span>
+
+			        {% if experiment_results.has_next %}
+			            <a href="?page={{ citation_results.next_page_number }}&q={{request.GET.q}}"><button>next</button></a>
+			            <a href="?page={{ citation_results.paginator.num_pages }}&q={{request.GET.q}}"><button>last &raquo;</button></a>
+			        {% endif %}
+			    </span>
+			</div>
+			{% endif %}
+
+			<!-- TABLE FOR CHEMICAL SEARCH -->
+			{% if tableview == "Chemical" %}
+			<table class="table" id="chemical" style="margin-top: 20px; border: 1px solid gray;">
+				<tr><th colspan="6" class="table-warning" style="text-align: center;">CHEMICAL TABLE</th></tr>
+				<tr>
+					<th class="table-success">Substance Name</th>
+					<th class="table-success">CASRN</th>
+					<th class="table-success">SMILES</th>
+					<th class="table-success">InChl</th>
+					<th class="table-success">Formula</th>
+					<th class="table-success">Molecular Weight</th>
+				</tr>
+
+			{% for attributes in chemical_results %}
+				<tr>
+					<td>{{attributes.Substance_Name}}</td>
+					<td>{{attributes.Substance_CASRN}}</td>
+					<td>{{attributes.Structure_SMILES}}</td>
+					<td>{{attributes.Structure_InChl}}</td>
+					<td>{{attributes.Structure_Formula}}</td>
+					<td>{{attributes.Structure_MolWt}}</td>
+				</tr>
+			{% endfor %}
+			</table>
+
+			<div class="pagination" style="justify-content: center;">
+			    <span class="step-links">
+			    	{% if chemical_results.has_previous %}
+			            <a href="?page=1&q={{request.GET.q}}"><button>&laquo; first</button></a>
+			            <a href="?page={{ chemical_results.previous_page_number}}&q={{request.GET.q}}"><button>previous</button></a>
+			        {% endif %}
+
+			        <span class="current">
+			            Page {{ chemical_results.number }} of {{ chemical_results.paginator.num_pages }}.
+			        </span>
+
+			        {% if chemical_results.has_next %}
+			            <a href="?page={{ chemical_results.next_page_number }}&q={{request.GET.q}}"><button>next</button></a>
+			            <a href="?page={{ chemical_results.paginator.num_pages }}&q={{request.GET.q}}"><button>last &raquo;</button></a>
+			        {% endif %}
+			    </span>
+			</div>
+			{% endif %}
+
 		</div>
 	</div>
 {% endblock %}

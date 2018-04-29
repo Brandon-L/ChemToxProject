@@ -29,17 +29,17 @@ class target(models.Model):
 	technological_target_track_status = models.CharField(max_length=50)
 	
 class experiment(models.Model):
-	aid = models.IntegerField()
-	acid = models.IntegerField()
+	aid = models.IntegerField(null=True)
+	acid = models.IntegerField(null=True)
 	aeid = models.AutoField(primary_key=True)
-	asid = models.IntegerField()
+	asid = models.IntegerField(null=True)
 	assay_source_name = models.CharField(max_length=50)
 	assay_source_long_name = models.CharField(max_length=50)
 	assay_source_desc = models.CharField(max_length=255)
 	assay_name = models.CharField(max_length=50)
 	assay_desc = models.CharField(max_length=255)
-	timepoint_hr = models.IntegerField()
-	organism_id = models.IntegerField()
+	timepoint_hr = models.IntegerField(null=True)
+	organism_id = models.IntegerField(null=True)
 	organism = models.CharField(max_length=50)
 	tissue = models.CharField(max_length=50)
 	cell_format = models.CharField(max_length=50)
@@ -51,7 +51,7 @@ class experiment(models.Model):
 	assay_format_type_sub = models.CharField(max_length=50)
 	content_readout_type = models.CharField(max_length=50)
 	dilution_solvent = models.CharField(max_length=50)
-	dilution_solvent_percent_max = models.FloatField()
+	dilution_solvent_percent_max = models.FloatField(null=True)
 	assay_component_name = models.CharField(max_length=50)
 	assay_component_desc = models.CharField(max_length=255)
 	assay_component_target_desc = models.CharField(max_length=255)
@@ -98,6 +98,21 @@ class citation(models.Model):
 	author = models.CharField(max_length=255)
 	url = models.CharField(max_length=50)
 
+class chemicals(models.Model):
+	chemical_id = models.AutoField(primary_key=True)
+	DSSTox_Substance_Id = models.CharField(max_length=50)
+	DSSTox_Structure_Id = models.CharField(max_length=50)
+	DSSTox_QC_Level = models.CharField(max_length=50)
+	Substance_Name = models.CharField(max_length=50)
+	Substance_CASRN = models.CharField(max_length=50)
+	Substance_Type = models.CharField(max_length=50)
+	Substance_Note = models.CharField(max_length=50)
+	Structure_SMILES = models.CharField(max_length=50)
+	Structure_InChI = models.CharField(max_length=500)
+	Structure_InChIKey = models.CharField(max_length=50)
+	Structure_Formula = models.CharField(max_length=50)
+	Structure_MolWt = models.FloatField()
+
 class experiment_citation_relation(models.Model):
 	id = models.AutoField(primary_key=True)
 	aeid = models.ForeignKey(experiment, on_delete=models.CASCADE, db_column = 'aeid')	
@@ -109,7 +124,7 @@ class experiment_target_relation(models.Model):
 	aeid = models.ForeignKey(experiment, on_delete=models.CASCADE, db_column = 'aeid')
 	target_id = models.ForeignKey(target, on_delete=models.CASCADE, db_column = 'target_id')
 
-"""class toxicity(models.Model):
+class toxicity(models.Model):
 	m4id = models.AutoField(primary_key=True)
 	m5id = models.IntegerField()
 	spid = models.CharField(max_length=50)
@@ -190,17 +205,4 @@ class experiment_target_relation(models.Model):
 	gnls_er_sd = models.FloatField()
 	gnls_aic = models.FloatField()
 	gnls_rmse = models.FloatField()
-	gnls_prob = models.FloatField()"""
-
-"""class chemicals(models.Model):
-	cid = models.AutoField(primary_key=True)
-	sid = models.IntegerField()
-	casn = models.IntegerField()
-	name = models.CharField(max_length=50)
-	name_synonyms = models.CharField(max_length=50)
-	description = models.CharField(max_length=200)
-	formula = models.IntegerField()
-	mw = models.IntegerField()
-	IUPAC = models.CharField(max_length=50)
-	SMILES = models.CharField(max_length=50)
-	PubChemFP = models.CharField(max_length=50)"""
+	gnls_prob = models.FloatField()

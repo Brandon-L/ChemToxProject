@@ -1,40 +1,83 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 from django.shortcuts import render
-from home.forms import ec_relation_form
-from home.models import citation
+from home.forms import experiment_form
 from home.models import experiment
-from home.models import experiment_citation_relation
-from home.models import experiment_target_relation
+from home.models import citation
+from home.models import target
+from home.models import chemicals
+from django.db.models import Q
+from django.core.paginator import Paginator
 
 # Create your views here.
 def homepage(request):
 	return render(request, 'home/home.html')
 
 def explore(request):
-	ec_relation = experiment_citation_relation.objects.all()
-	et_relation = experiment_target_relation.objects.all()
+	experiment_table = experiment.objects.all()
+	target_table = target.objects.all()
+	citation_table = citation.objects.all()
+	chemical_table = chemicals.objects.all()
 
 	query = request.GET.get("q")
-	if query:
-		ec_relation = experiment_citation_relation.objects.filter(aeid__assay_source_name__icontains=query)
-		et_relation = experiment_target_relation.objects.filter(aeid__assay_source_name__icontains=query)
+	tableview = request.POST.get("tableview", False)
+	page = request.GET.get("page")
 
-	args = {'ec_relation':ec_relation, 'et_relation': et_relation}
+	if query:
+		experiment_table = experiment.objects.filter(
+			Q(aeid__icontains=query) |
+			Q(assay_source_name__icontains=query) |
+			Q(assay_source_long_name__icontains=query) |
+			Q(assay_name__icontains=query) |
+			Q(organism__icontains=query) |
+			Q(tissue__icontains=query))
+
+
+		target_table = target.objects.filter(
+			Q(intended_target_official_full_name__icontains=query) |
+			Q(intended_target_gene_name__icontains=query) |
+			Q(intended_target_official_symbol__icontains=query) |
+			Q(intended_target_gene_symbol__icontains=query) |
+			Q(technological_target_official_full_name__icontains=query) |
+			Q(technological_target_gene_name__icontains=query) |
+			Q(technological_target_official_symbol__icontains=query) |
+			Q(technological_target_gene_symbol__icontains=query))
+
+		citation_table = citation.objects.filter(
+			Q(pmid__icontains=query) |
+			Q(doi__icontains=query) |
+			Q(title__icontains=query) |
+			Q(author__icontains=query))
+
+		chemical_table = chemicals.objects.filter(
+			Q(Substance_Name__icontains=query) |
+			Q(Substance_CASRN__icontains=query) |
+			Q(Structure_SMILES__icontains=query))
+
+	exp_paginator = Paginator(experiment_table, 10)
+	experiment_results = exp_paginator.get_page(page)
+	tgt_paginator = Paginator(target_table, 10)
+	target_results = tgt_paginator.get_page(page)
+	cit_paginator = Paginator(citation_table, 10)
+	citation_results = cit_paginator.get_page(page)
+	chem_paginator = Paginator(chemical_table, 10)
+	chemical_results = chem_paginator.get_page(page)
+
+	args = {'experiment_results': experiment_results,
+	'target_results': target_results, 'citation_results': citation_results,
+	'chemical_results': chemical_results, 'tableview': tableview}
 		
 	return render(request, 'home/explore.html', args)
 
 def manage(request):
-	ec_relation = experiment_citation_relation.objects.all()
-	et_relation = experiment_target_relation.objects.all()
-
-	form = ec_relation_form()
+	
+	form = experiment_form()
 	
 	if request.method == "POST":
-		exp_model = experiment.objects.get(aeid = request.POST.get("aeid") )
-		citation_model = citation.objects.get(citation_id = request.POST.get("citation_id"))
-		experiment_citation_relation.objects.create(aeid=exp_model, citation_id=citation_model)
+		#exp_model = experiment.objects.get(assay_source_name = request.POST.get("assay_source_name"))
+		#citation_model = citation.objects.get(citation_id = request.POST.get("citation_id"))
+		experiment.objects.create(assay_source_name=request.POST.get("assay_source_name"))
 
-	args = {'ec_relation':ec_relation, 'et_relation': et_relation, 'form':form}
+	args = {'form':form}
 
 	return render(request, 'home/manage.html', args)
