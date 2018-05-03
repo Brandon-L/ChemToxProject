@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 from django.shortcuts import render
-from home.forms import experiment_form
 from home.models import experiment
 from home.models import citation
 from home.models import target
 from home.models import chemicals
 from django.db.models import Q
 from django.core.paginator import Paginator
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth import logout
 
 # Create your views here.
 def homepage(request):
@@ -20,7 +21,7 @@ def explore(request):
 	chemical_table = chemicals.objects.all()
 
 	query = request.GET.get("q")
-	tableview = request.POST.get("tableview", False)
+	tableview = request.GET.get("tableview", False)
 	page = request.GET.get("page")
 
 	if query:
@@ -69,15 +70,29 @@ def explore(request):
 		
 	return render(request, 'home/explore.html', args)
 
+@login_required(login_url='/login/')
 def manage(request):
-	
-	form = experiment_form()
-	
-	if request.method == "POST":
-		#exp_model = experiment.objects.get(assay_source_name = request.POST.get("assay_source_name"))
-		#citation_model = citation.objects.get(citation_id = request.POST.get("citation_id"))
-		experiment.objects.create(assay_source_name=request.POST.get("assay_source_name"))
+	experiment_table = experiment.objects.all()
+	target_table = target.objects.all()
+	citation_table = citation.objects.all()
+	chemical_table = chemicals.objects.all()
 
-	args = {'form':form}
+	tableview = request.GET.get("tableview", False)
+	page = request.GET.get("page")
+	delReq = request.GET.get("delete")
+
+	exp_paginator = Paginator(experiment_table, 10)
+	experiment_results = exp_paginator.get_page(page)
+	tgt_paginator = Paginator(target_table, 10)
+	target_results = tgt_paginator.get_page(page)
+	cit_paginator = Paginator(citation_table, 10)
+	citation_results = cit_paginator.get_page(page)
+	chem_paginator = Paginator(chemical_table, 10)
+	chemical_results = chem_paginator.get_page(page)
+
+
+	args = {'experiment_results': experiment_results,
+	'target_results': target_results, 'citation_results': citation_results,
+	'chemical_results': chemical_results, 'tableview': tableview}
 
 	return render(request, 'home/manage.html', args)

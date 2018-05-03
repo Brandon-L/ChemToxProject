@@ -8,37 +8,25 @@
 
 	<div class="container" style="margin-top: 20px; margin-bottom: 20px;">
 
-		<form method="GET" action=" " style="display: inline-block;">
+		<form method="GET" action=" " style="display: inline-block;" autocomplete="off">
 			<input type="text" placeholder="Search Term" name="q" value="{{ request.GET.q }}">
 			<input type="submit" value="Submit">
-		</form>
-
-		<!-- BUTTONS TO CHOOSE WHICH TABLES TO VIEW -->
-		<form method="post" action="" style="display: inline-block; margin-left: 50px;">
-			{% csrf_token %}
-			<input type="submit" value="All" name="all" >
-		</form>
-		<form method="post" action="" style="display: inline-block;">
-			{% csrf_token %}
-			<input type="submit" value="Experiment" name="tableview" >
-		</form>
-		<form method="post" action="" style="display: inline-block;">
-			{% csrf_token %}
-			<input type="submit" value="Target" name="tableview" >
-		</form>
-		<form method="post" action="" style="display: inline-block;">
-			{% csrf_token %}
-			<input type="submit" value="Citation" name="tableview" >
-		</form>
-		<form method="post" action="" style="display: inline-block;">
-			{% csrf_token %}
-			<input type="submit" value="Chemical" name="tableview" >
+			<div style="display: inline-block; margin-left: 50px;">
+			<input type="radio" value="All" name="tableview">All
+			<input type="radio" value="Experiment" name="tableview" checked="checked" >Experiment
+			<input type="radio" value="Target" name="tableview"
+			{% if request.GET.tableview == "Target" %}checked="checked"{% endif %} >Target
+			<input type="radio" value="Citation" name="tableview"
+			{% if request.GET.tableview == "Citation" %}checked="checked"{% endif %} >Citation
+			<input type="radio" value="Chemical" name="tableview"
+			{% if request.GET.tableview == "Chemical" %}checked="checked"{% endif %} >Chemical
+			</div>	
 		</form>
 
 		<div class="table-responsive">
 
 			<!-- TABLE FOR EXPERIMENT SEARCH -->
-			{% if tableview == "Experiment" %}
+			{% if request.GET.tableview == "Experiment" or request.GET.tableview == NULL %}
 			<table class="table" id="experiment" style="margin-top: 20px; border: 1px solid gray;">
 				<tr><th colspan="6" class="table-warning" style="text-align: center;">EXPERIMENT TABLE</th></tr>
 				<tr>
@@ -65,8 +53,8 @@
 			<div class="pagination" style="justify-content: center;">
 			    <span class="step-links">
 			    	{% if experiment_results.has_previous %}
-			            <a href="?page=1&q={{request.GET.q}}"><button class="btn btn-secondary">&laquo; first</button></a>
-			            <a href="?page={{ experiment_results.previous_page_number}}&q={{request.GET.q}}"><button class="btn btn-secondary">previous</button></a>
+			            <a href="?page=1&q={{request.GET.q}}&tableview={{request.GET.tableview}}"><button class="btn btn-secondary">&laquo; first</button></a>
+			            <a href="?page={{ experiment_results.previous_page_number}}&q={{request.GET.q}}&tableview={{request.GET.tableview}}"><button class="btn btn-secondary">previous</button></a>
 			        {% else %}
 			        	<button class="btn btn-secondary disabled">&laquo; first</button>
 			        	<button class="btn btn-secondary disabled">previous</button>
@@ -77,8 +65,8 @@
 			        </span>
 
 			        {% if experiment_results.has_next %}
-			            <a href="?page={{ experiment_results.next_page_number }}&q={{request.GET.q}}"><button class="btn btn-secondary">next</button></a>
-			            <a href="?page={{ experiment_results.paginator.num_pages }}&q={{request.GET.q}}"><button class="btn btn-secondary">last &raquo;</button></a>
+			            <a href="?page={{ experiment_results.next_page_number }}&q={{request.GET.q}}&tableview={{request.GET.tableview}}"><button class="btn btn-secondary">next</button></a>
+			            <a href="?page={{ experiment_results.paginator.num_pages }}&q={{request.GET.q}}&tableview={{request.GET.tableview}}"><button class="btn btn-secondary">last &raquo;</button></a>
 			        {% else %}
 			        	<button class="btn btn-secondary disabled">next</button>
 			        	<button class="btn btn-secondary disabled">last &raquo;</button>
@@ -88,7 +76,7 @@
 			{% endif %}
 
 			<!-- TABLE FOR TARGET SEARCH -->
-			{% if tableview == "Target" %}
+			{% if request.GET.tableview == "Target" %}
 			<table class="table" id="target" style="margin-top: 20px; border: 1px solid gray;">
 				<tr><th colspan="8" class="table-warning" style="text-align: center;">TARGET TABLE</th></tr>
 				<tr>
@@ -118,9 +106,12 @@
 
 			<div class="pagination" style="justify-content: center;">
 			    <span class="step-links">
-			        {% if target_results.has_previous %}
-			            <a href="?page=1&q={{request.GET.q}}"><button>&laquo; first</button></a>
-			            <a href="?page={{ target_results.previous_page_number}}&q={{request.GET.q}}"><button>previous</button></a>
+			    	{% if target_results.has_previous %}
+			            <a href="?page=1&q={{request.GET.q}}&tableview={{request.GET.tableview}}"><button class="btn btn-secondary">&laquo; first</button></a>
+			            <a href="?page={{ target_results.previous_page_number}}&q={{request.GET.q}}&tableview={{request.GET.tableview}}"><button class="btn btn-secondary">previous</button></a>
+			        {% else %}
+			        	<button class="btn btn-secondary disabled">&laquo; first</button>
+			        	<button class="btn btn-secondary disabled">previous</button>
 			        {% endif %}
 
 			        <span class="current">
@@ -128,15 +119,18 @@
 			        </span>
 
 			        {% if target_results.has_next %}
-			            <a href="?page={{ target_results.next_page_number }}&q={{request.GET.q}}"><button>next</button></a>
-			            <a href="?page={{ target_results.paginator.num_pages }}&q={{request.GET.q}}"><button>last &raquo;</button></a>
+			            <a href="?page={{ target_results.next_page_number }}&q={{request.GET.q}}&tableview={{request.GET.tableview}}"><button class="btn btn-secondary">next</button></a>
+			            <a href="?page={{ target_results.paginator.num_pages }}&q={{request.GET.q}}&tableview={{request.GET.tableview}}"><button class="btn btn-secondary">last &raquo;</button></a>
+			        {% else %}
+			        	<button class="btn btn-secondary disabled">next</button>
+			        	<button class="btn btn-secondary disabled">last &raquo;</button>
 			        {% endif %}
 			    </span>
 			</div>
 			{% endif %}
 
 			<!-- TABLE FOR CITATION SEARCH -->
-			{% if tableview == "Citation" %}
+			{% if request.GET.tableview == "Citation" %}
 			<table class="table" id="citation" style="margin-top: 20px; border: 1px solid gray;">
 				<tr><th colspan="4" class="table-warning" style="text-align: center;">CITATION TABLE</th></tr>
 				<tr>
@@ -159,24 +153,30 @@
 			<div class="pagination" style="justify-content: center;">
 			    <span class="step-links">
 			    	{% if citation_results.has_previous %}
-			            <a href="?page=1&q={{request.GET.q}}"><button>&laquo; first</button></a>
-			            <a href="?page={{ citation_results.previous_page_number}}&q={{request.GET.q}}"><button>previous</button></a>
+			            <a href="?page=1&q={{request.GET.q}}&tableview={{request.GET.tableview}}"><button class="btn btn-secondary">&laquo; first</button></a>
+			            <a href="?page={{ citation_results.previous_page_number}}&q={{request.GET.q}}&tableview={{request.GET.tableview}}"><button class="btn btn-secondary">previous</button></a>
+			        {% else %}
+			        	<button class="btn btn-secondary disabled">&laquo; first</button>
+			        	<button class="btn btn-secondary disabled">previous</button>
 			        {% endif %}
 
 			        <span class="current">
 			            Page {{ citation_results.number }} of {{ citation_results.paginator.num_pages }}.
 			        </span>
 
-			        {% if experiment_results.has_next %}
-			            <a href="?page={{ citation_results.next_page_number }}&q={{request.GET.q}}"><button>next</button></a>
-			            <a href="?page={{ citation_results.paginator.num_pages }}&q={{request.GET.q}}"><button>last &raquo;</button></a>
+			        {% if citation_results.has_next %}
+			            <a href="?page={{ citation_results.next_page_number }}&q={{request.GET.q}}&tableview={{request.GET.tableview}}"><button class="btn btn-secondary">next</button></a>
+			            <a href="?page={{ citation_results.paginator.num_pages }}&q={{request.GET.q}}&tableview={{request.GET.tableview}}"><button class="btn btn-secondary">last &raquo;</button></a>
+			        {% else %}
+			        	<button class="btn btn-secondary disabled">next</button>
+			        	<button class="btn btn-secondary disabled">last &raquo;</button>
 			        {% endif %}
 			    </span>
 			</div>
 			{% endif %}
 
 			<!-- TABLE FOR CHEMICAL SEARCH -->
-			{% if tableview == "Chemical" %}
+			{% if request.GET.tableview == "Chemical" %}
 			<table class="table" id="chemical" style="margin-top: 20px; border: 1px solid gray;">
 				<tr><th colspan="6" class="table-warning" style="text-align: center;">CHEMICAL TABLE</th></tr>
 				<tr>
@@ -203,8 +203,11 @@
 			<div class="pagination" style="justify-content: center;">
 			    <span class="step-links">
 			    	{% if chemical_results.has_previous %}
-			            <a href="?page=1&q={{request.GET.q}}"><button>&laquo; first</button></a>
-			            <a href="?page={{ chemical_results.previous_page_number}}&q={{request.GET.q}}"><button>previous</button></a>
+			            <a href="?page=1&q={{request.GET.q}}&tableview={{request.GET.tableview}}"><button class="btn btn-secondary">&laquo; first</button></a>
+			            <a href="?page={{ chemical_results.previous_page_number}}&q={{request.GET.q}}&tableview={{request.GET.tableview}}"><button class="btn btn-secondary">previous</button></a>
+			        {% else %}
+			        	<button class="btn btn-secondary disabled">&laquo; first</button>
+			        	<button class="btn btn-secondary disabled">previous</button>
 			        {% endif %}
 
 			        <span class="current">
@@ -212,8 +215,11 @@
 			        </span>
 
 			        {% if chemical_results.has_next %}
-			            <a href="?page={{ chemical_results.next_page_number }}&q={{request.GET.q}}"><button>next</button></a>
-			            <a href="?page={{ chemical_results.paginator.num_pages }}&q={{request.GET.q}}"><button>last &raquo;</button></a>
+			            <a href="?page={{ chemical_results.next_page_number }}&q={{request.GET.q}}&tableview={{request.GET.tableview}}"><button class="btn btn-secondary">next</button></a>
+			            <a href="?page={{ chemical_results.paginator.num_pages }}&q={{request.GET.q}}&tableview={{request.GET.tableview}}"><button class="btn btn-secondary">last &raquo;</button></a>
+			        {% else %}
+			        	<button class="btn btn-secondary disabled">next</button>
+			        	<button class="btn btn-secondary disabled">last &raquo;</button>
 			        {% endif %}
 			    </span>
 			</div>

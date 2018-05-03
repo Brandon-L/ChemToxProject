@@ -5,12 +5,15 @@
 {% endblock %}
 
 {% block body %}
-
-	<h2>Sign up here!</h2>
+	
+	<div class="container" style="width: 60%;">
+	<h2 style="margin-top: 100px;">Sign up here!</h2>
+	<hr>
 	<form method="post">
 		{% csrf_token %}
 		{{ form.as_p }}
-		<button type="submit">Sign Up</button>
+		<button type="submit" class="btn btn-lg btn-success" style="width: 100%;">Sign Up</button>
 	</form>
+	</div>
 
 {% endblock %}
